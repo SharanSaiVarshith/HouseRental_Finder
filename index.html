@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Rental Finder — Demo</title>
+  <style>
+    :root{--accent:#2563eb;--muted:#6b7280;--bg:#f8fafc}
+    *{box-sizing:border-box}
+    body{font-family:Inter, system-ui, Arial; margin:0;background:var(--bg);color:#0f172a}
+    header{background:white;box-shadow:0 2px 8px rgba(15,23,42,0.06);}
+    .container{max-width:1100px;margin:0 auto;padding:18px}
+    nav{display:flex;align-items:center;justify-content:space-between}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:700}
+    .brand .logo{width:40px;height:40px;background:linear-gradient(135deg,var(--accent),#7c3aed);border-radius:8px;display:grid;place-items:center;color:white}
+    .menu{display:flex;gap:12px}
+    .menu a{padding:8px 12px;border-radius:8px;text-decoration:none;color:var(--muted)}
+    .menu a.active{color:var(--accent);font-weight:600}
+
+    main{padding:28px 0}
+    .hero{display:flex;gap:24px;align-items:center}
+    .hero .intro{flex:1}
+    .hero h1{margin:0 0 8px;font-size:28px}
+    .hero p{margin:0;color:var(--muted)}
+
+    /* listings */
+    .listings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;margin-top:18px}
+    .card{background:white;border-radius:12px;overflow:hidden;box-shadow:0 8px 20px rgba(2,6,23,0.04);}
+    .card img{width:100%;height:170px;object-fit:cover;display:block}
+    .card .body{padding:12px}
+    .card h3{margin:0 0 6px;font-size:16px}
+    .meta{display:flex;justify-content:space-between;color:var(--muted);font-size:13px}
+    .actions{display:flex;gap:8px;margin-top:12px}
+    .btn{padding:8px 12px;border-radius:8px;border:none;cursor:pointer}
+    .btn.primary{background:var(--accent);color:white}
+    .btn.ghost{background:transparent;border:1px solid #e6eefc;color:var(--accent)}
+
+    footer{padding:18px 0;color:var(--muted);font-size:14px}
+
+    /* simple page switcher */
+    .page{display:none}
+    .page.active{display:block}
+
+    /* property detail modal */
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(2,6,23,0.5)}
+    .modal.show{display:flex}
+    .modal .panel{background:white;border-radius:12px;max-width:900px;width:95%;max-height:90%;overflow:auto}
+    .modal .panel img{width:100%;height:400px;object-fit:cover;border-radius:12px 12px 0 0}
+    .modal .panel .content{padding:16px}
+
+    /* responsive */
+    @media (max-width:600px){.hero{flex-direction:column;align-items:flex-start}.brand{gap:8px}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <nav>
+        <div class="brand" onclick="goHome()">
+          <div class="logo">R</div>
+          <div>RentalFinder</div>
+        </div>
+        <div class="menu" role="navigation">
+          <a href="#" class="nav-link active" data-page="home">Home</a>
+          <a href="#" class="nav-link" data-page="listings">Listings</a>
+          <a href="#" class="nav-link" data-page="about">About</a>
+          <a href="#" class="nav-link" data-page="contact">Contact</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Home -->
+    <section id="home" class="page active">
+      <div class="hero">
+        <div class="intro">
+          <h1>Find your next rental — fast</h1>
+          <p>Browse curated apartments, houses and studios. Use the menu to navigate through demo pages. Click a listing to open the property detail.</p>
+        </div>
+        <div style="width:320px">
+          <div style="background:white;padding:12px;border-radius:12px;box-shadow:0 6px 18px rgba(2,6,23,0.04)">
+            <strong>Quick search</strong>
+            <div style="margin-top:10px">
+              <input id="q" placeholder="City, landmark or property" style="width:100%;padding:10px;border-radius:8px;border:1px solid #e6eefc" />
+              <div style="display:flex;gap:8px;margin-top:8px">
+                <button class="btn primary" onclick="search()">Search</button>
+                <button class="btn ghost" onclick="resetFilters()">Reset</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h2 style="margin-top:22px">Featured listings</h2>
+        <div id="featured" class="listings-grid"></div>
+      </div>
+    </section>
+
+    <!-- Listings -->
+    <section id="listings" class="page">
+      <h2>All listings</h2>
+      <div id="allListings" class="listings-grid"></div>
+    </section>
+
+    <!-- About -->
+    <section id="about" class="page">
+      <h2>About RentalFinder</h2>
+      <p style="color:var(--muted)">This is a small demo built with plain HTML, CSS and JavaScript. It demonstrates a menu-driven single-page layout, sample property cards, images, and a lightweight modal detail view.</p>
+    </section>
+
+    <!-- Contact -->
+    <section id="contact" class="page">
+      <h2>Contact</h2>
+      <p style="color:var(--muted)">For demo purposes, this form does not submit anywhere. Use it to imagine how property owners could register a listing.</p>
+      <form onsubmit="event.preventDefault();alert('Demo: form submitted')" style="max-width:600px;background:white;padding:14px;border-radius:10px;box-shadow:0 6px 18px rgba(2,6,23,0.04)">
+        <label style="display:block;margin-bottom:8px">Name<input required style="width:100%;padding:10px;margin-top:6px;border-radius:8px;border:1px solid #e6eefc" /></label>
+        <label style="display:block;margin-bottom:8px">Email<input type="email" required style="width:100%;padding:10px;margin-top:6px;border-radius:8px;border:1px solid #e6eefc" /></label>
+        <label style="display:block;margin-bottom:8px">Message<textarea required style="width:100%;padding:10px;margin-top:6px;border-radius:8px;border:1px solid #e6eefc"></textarea></label>
+        <button class="btn primary" type="submit">Send</button>
+      </form>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="container">© Demo — RentalFinder. Images are placeholders for demo purposes.</div>
+  </footer>
+
+  <!-- modal -->
+  <div id="modal" class="modal" onclick="closeModal(event)">
+    <div class="panel" role="dialog" aria-modal="true" onclick="event.stopPropagation()">
+      <img id="modalImg" src="" alt="Property image" />
+      <div class="content">
+        <h3 id="modalTitle"></h3>
+        <p id="modalDesc" style="color:var(--muted)"></p>
+        <div class="meta"><span id="modalPrice"></span><span id="modalBeds"></span></div>
+        <div style="margin-top:12px"><button class="btn primary" onclick="alert('Contact owner - demo')">Contact Owner</button></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Sample demo data (3 example properties). Images use picsum.photos seeded urls so you can load them offline.
+    const properties = [
+      {
+        id:1,
+        title:'Sunny 2BHK Apartment in Downtown',
+        desc:'Bright apartment, 2 bedrooms, close to transit and cafes. Furnished option available.',
+        price:'₹18,000 / month',
+        beds:'2 beds • 1 bath',
+        img:'https://picsum.photos/seed/roominterior1/800/500'
+      },
+      {
+        id:2,
+        title:'Cozy Studio near University',
+        desc:'Compact studio ideal for students — utilities included. High-speed internet ready.',
+        price:'₹9,500 / month',
+        beds:'Studio • 1 bath',
+        img:'https://picsum.photos/seed/roominterior2/800/500'
+      },
+      {
+        id:3,
+        title:'Modern 3BHK House with Garden',
+        desc:'Spacious house, private garden, parking space. Family-friendly neighborhood.',
+        price:'₹28,000 / month',
+        beds:'3 beds • 2 baths',
+        img:'https://picsum.photos/seed/roominterior3/800/500'
+      }
+    ];
+
+    // simple router for page nav
+    document.querySelectorAll('.nav-link').forEach(link=>{
+      link.addEventListener('click',e=>{
+        e.preventDefault();
+        const page = link.dataset.page;
+        document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));
+        link.classList.add('active');
+        document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+        document.getElementById(page).classList.add('active');
+        if(page==='listings') renderAll();
+      })
+    })
+
+    function goHome(){document.querySelector('[data-page=home]').click();}
+
+    // render functions
+    function renderCard(prop){
+      const el = document.createElement('div'); el.className='card';
+      el.innerHTML = `
+        <img src="${prop.img}" alt="${prop.title}" />
+        <div class="body">
+          <h3>${prop.title}</h3>
+          <div class="meta">${prop.price}<span>${prop.beds}</span></div>
+          <p style="color:var(--muted);margin-top:8px;font-size:13px">${prop.desc}</p>
+          <div class="actions">
+            <button class="btn primary" onclick='openModal(${prop.id})'>View</button>
+            <button class="btn ghost" onclick='alert("Saved to favorites (demo)")'>Save</button>
+          </div>
+        </div>
+      `;
+      return el;
+    }
+
+    function renderFeatured(){
+      const container = document.getElementById('featured'); container.innerHTML='';
+      properties.slice(0,3).forEach(p=>container.appendChild(renderCard(p)));
+    }
+
+    function renderAll(){
+      const container = document.getElementById('allListings'); container.innerHTML='';
+      properties.forEach(p=>container.appendChild(renderCard(p)));
+    }
+
+    function openModal(id){
+      const p = properties.find(x=>x.id===id);
+      document.getElementById('modalImg').src = p.img;
+      document.getElementById('modalTitle').textContent = p.title;
+      document.getElementById('modalDesc').textContent = p.desc;
+      document.getElementById('modalPrice').textContent = p.price;
+      document.getElementById('modalBeds').textContent = p.beds;
+      document.getElementById('modal').classList.add('show');
+    }
+    function closeModal(e){ if(e.target.id==='modal') document.getElementById('modal').classList.remove('show'); }
+
+    // demo search
+    function search(){
+      const q = document.getElementById('q').value.trim().toLowerCase();
+      if(!q){alert('Enter a city or keyword. This is a demo search.');return}
+      const results = properties.filter(p=> (p.title+p.desc).toLowerCase().includes(q));
+      const container = document.getElementById('allListings'); container.innerHTML='';
+      if(results.length===0){container.innerHTML='<div style="color:var(--muted)">No matches found in demo data.</div>';}
+      else results.forEach(r=>container.appendChild(renderCard(r)));
+      document.querySelector('[data-page=listings]').click();
+    }
+    function resetFilters(){ document.getElementById('q').value=''; renderFeatured(); }
+
+    // init
+    renderFeatured();
+
+  </script>
+</body>
+</html>
